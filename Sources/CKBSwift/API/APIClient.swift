@@ -10,19 +10,19 @@ import Combine
 /// JSON RPC API client.
 /// Implement CKB [JSON-RPC](https://github.com/nervosnetwork/ckb/tree/develop/rpc#ckb-json-rpc-protocols) interfaces.
 public class APIClient {
-    private let url: URL
+    private let url: String
 
-    public static let defaultLocalURL = URL(string: "http://127.0.0.1:8114")!
+    public static let defaultLocalURL = "http://127.0.0.1:8114"
 
-    public init(url: URL = APIClient.defaultLocalURL) {
+    public init(url: String = APIClient.defaultLocalURL) {
         self.url = url
     }
 
-    public func load<R: Codable>(_ request: APIRequest) -> Future<R, APIError> {
+    public func load<R: Codable>(_ request: APIRequest, _ path: String = "") -> Future<R, APIError> {
         return Future<R, APIError> { [unowned self] promise in
             let req: URLRequest
             do {
-                req = try self.createRequest(request)
+                req = try self.createRequest(request, path)
             } catch {
                 return promise(.failure(error as! APIError))
             }
@@ -45,7 +45,10 @@ public class APIClient {
         }
     }
 
-    private func createRequest(_ request: APIRequest) throws -> URLRequest {
+    private func createRequest(_ request: APIRequest, _ path: String = "") throws -> URLRequest {
+        guard let url = URL(string: "\(url)\(path)") else{
+            throw APIError.invalidUrl
+        }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")

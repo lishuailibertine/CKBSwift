@@ -43,11 +43,14 @@ public extension APIClient {
             params: [lockHash, from.hexString, to.hexString]
         ))
     }
-
+    
     func getLiveCell(outPoint: OutPoint, withData: Bool = true) -> Future<CellWithStatus, APIError> {
          load(APIRequest(method: "get_live_cell", params: [outPoint.param, withData]))
     }
 
+    func getCells(cellsParams: CellsRequestParams, direction: String = "desc", limit: String = "0x64", last_cursor: String?) -> Future<CellsResponse, APIError> {
+         load(APIRequest(method: "get_cells", params: [cellsParams.param, direction, limit, last_cursor]),"/indexer")
+    }
     func getTipBlockNumber() -> Future<String, APIError> {
          load(APIRequest(method: "get_tip_block_number"))
     }

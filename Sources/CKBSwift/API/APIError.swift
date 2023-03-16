@@ -15,6 +15,7 @@ public struct APIError: Codable, LocalizedError {
 
 extension APIError {
     static let genericErrorCode = -1
+    static let invalidUrl = APIError(code: genericErrorCode, message: "Invalid URL")
     static let invalidParameters = APIError(code: genericErrorCode, message: "Invalid parameters")
     static let emptyResponse = APIError(code: genericErrorCode, message: "Empty response")
     static let nullResult = APIError(code: genericErrorCode, message: "Null result")
