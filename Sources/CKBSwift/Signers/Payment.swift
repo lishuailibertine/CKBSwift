@@ -56,12 +56,17 @@ public final class Payment {
             }
         }
     }
-    public func send() throws -> H256 {
-        guard let signedTx = signedTx else {
-            throw Error.txNotSigned
+    public func send() -> Promise<H256> {
+        return Promise { seal in
+            DispatchQueue.global().async(.promise) {
+                guard let signedTx = self.signedTx else {
+                    throw Error.txNotSigned
+                }
+                seal.fulfill(try self.apiClient.sendTransaction(transaction: signedTx).wait())
+            }.catch { error in
+                seal.reject(error)
+            }
         }
-        _ = apiClient.sendTransaction(transaction: signedTx)
-        return signedTx.hash
     }
 
     private lazy var systemScript: SystemScript = {
