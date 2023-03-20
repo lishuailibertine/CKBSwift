@@ -5,15 +5,14 @@
 //
 
 import Foundation
-import Combine
-
+import PromiseKit
 
 public extension APIClient {
-    func sendTransaction(transaction: Transaction) -> Future<H256, APIError> {
+    func sendTransaction(transaction: Transaction) -> Promise<H256> {
         load(APIRequest(method: "send_transaction", params: [transaction.param]))
     }
 
-    func txPoolInfo() -> Future<TxPoolInfo, APIError> {
+    func txPoolInfo() -> Promise<TxPoolInfo> {
         load(APIRequest(method: "tx_pool_info", params: []))
     }
 }

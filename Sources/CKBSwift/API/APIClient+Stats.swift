@@ -5,15 +5,14 @@
 //
 
 import Foundation
-import Combine
-
+import PromiseKit
 
 public extension APIClient {
-    func getBlockchainInfo() -> Future<ChainInfo, APIError> {
+    func getBlockchainInfo() -> Promise<ChainInfo> {
         load(APIRequest(method: "get_blockchain_info", params: []))
     }
 
-    func getPeersState() -> Future<[PeerState], APIError> {
+    func getPeersState() -> Promise<[PeerState]> {
         load(APIRequest(method: "get_peers_state", params: []))
     }
 }

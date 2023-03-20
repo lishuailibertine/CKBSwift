@@ -5,15 +5,14 @@
 //
 
 import Foundation
-import Combine
-
+import PromiseKit
 
 public extension APIClient {
-    func localNodeInfo() -> Future<Node, APIError> {
+    func localNodeInfo() -> Promise<Node> {
         load(APIRequest(method: "local_node_info", params: []))
     }
 
-    func getPeers() -> Future<[Node], APIError> {
+    func getPeers() -> Promise<[Node]> {
         load(APIRequest(method: "get_peers", params: []))
     }
 }

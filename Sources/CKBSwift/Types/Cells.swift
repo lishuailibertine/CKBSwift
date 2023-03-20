@@ -27,10 +27,10 @@ public struct CellsRequestParams: Param{
 
 public struct CellsResponse: Codable{
     public let last_cursor: String
-    public let objects: [CellsResponseObject]
+    public let objects: [CellObject]
 }
 
-public struct CellsResponseObject: Codable{
+public struct CellObject: Codable{
     public let block_number: String
     public let out_point: OutPoint
     public let output: CellOutput

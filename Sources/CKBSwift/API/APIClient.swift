@@ -5,41 +5,40 @@
 //
 
 import Foundation
-import Combine
+import PromiseKit
 
 /// JSON RPC API client.
 /// Implement CKB [JSON-RPC](https://github.com/nervosnetwork/ckb/tree/develop/rpc#ckb-json-rpc-protocols) interfaces.
 public class APIClient {
     private let url: String
-
     public static let defaultLocalURL = "http://127.0.0.1:8114"
 
     public init(url: String = APIClient.defaultLocalURL) {
         self.url = url
     }
 
-    public func load<R: Codable>(_ request: APIRequest, _ path: String = "") -> Future<R, APIError> {
-        return Future<R, APIError> { [unowned self] promise in
+    public func load<R: Codable>(_ request: APIRequest, _ path: String = "") -> Promise<R> {
+        return Promise<R> { [unowned self] resove in
             let req: URLRequest
             do {
                 req = try self.createRequest(request, path)
             } catch {
-                return promise(.failure(error as! APIError))
+                return resove.reject(error)
             }
 
             URLSession.shared.dataTask(with: req) { (data, _, err) in
                 do {
                     guard let data = data else {
-                        return promise(.failure(APIError.emptyResponse))
+                        return resove.reject(APIError.emptyResponse)
                     }
                     let result = try JSONDecoder().decode(APIResult<R>.self, from: data)
                     if let result = result.result {
-                        return promise(.success(result))
+                        return resove.fulfill(result)
                     } else {
-                        return promise(.failure(APIError.emptyResponse))
+                        return resove.reject(APIError.emptyResponse)
                     }
                 } catch {
-                    return promise(.failure(APIError.genericError(error.localizedDescription)))
+                    return resove.reject(APIError.genericError(error.localizedDescription))
                 }
             }.resume()
         }
@@ -68,11 +67,11 @@ public class APIClient {
 }
 
 extension APIClient {
-    public func genesisBlockHash() -> Future<H256, APIError> {
+    public func genesisBlockHash() -> Promise<H256> {
         getBlockHash(number: 0)
     }
 
-    public func genesisBlock() -> Future<Block, APIError> {
+    public func genesisBlock() -> Promise<Block> {
         getBlockByNumber(number: 0)
     }
 }
