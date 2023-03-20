@@ -11,8 +11,8 @@ public struct CellsRequestParams: Param{
    
     public let script: Script
     public let script_type: String
-    public init(address: String, type: String = "lock") {
-        self.script = Script(args: AddressGenerator.publicKeyHash(for: address)!.addHexPrefix(), codeHash: SystemScript.loadSystemScript().secp256k1TypeHash, hashType: .type)
+    public init(publicKeyHash: String, type: String = "lock") {
+        self.script = Script(args: publicKeyHash.addHexPrefix(), codeHash: SystemScript.loadSystemScript().secp256k1TypeHash, hashType: .type)
         self.script_type = type
     }
 

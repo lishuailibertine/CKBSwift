@@ -49,14 +49,14 @@ public extension APIClient {
          load(APIRequest(method: "get_live_cell", params: [outPoint.param, withData]))
     }
 
-    func getUnspentCells(address: String, maxCapacity: BigUInt, limit: Capacity = 1) -> Promise<[CellObject]>{
+    func getUnspentCells(publicKeyHash: String, maxCapacity: BigUInt, limit: Capacity = 1) -> Promise<[CellObject]>{
         return Promise { seal in
             DispatchQueue.global().async(.promise){
                 var last_cursor: String?
                 var capacity = BigUInt(0)
                 var outpoints = [CellObject]()
                 while capacity < maxCapacity && last_cursor != "0x" {
-                    let response = try self.getCells(cellsParams: CellsRequestParams(address: address), limit: String(limit, radix: 16).addHexPrefix(), last_cursor: last_cursor).wait()
+                    let response = try self.getCells(cellsParams: CellsRequestParams(publicKeyHash: publicKeyHash), limit: String(limit, radix: 16).addHexPrefix(), last_cursor: last_cursor).wait()
                     last_cursor = response.last_cursor
                     response.objects.forEach { object in
                         capacity = capacity + BigUInt(object.output.capacity)

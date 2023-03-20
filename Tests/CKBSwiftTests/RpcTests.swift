@@ -17,30 +17,12 @@ final class RpcTests: XCTestCase {
     func testGetCells() async throws {
         let reqeustExpectation = XCTestExpectation(description: #function)
         
-        apiClient.getUnspentCells(address: "ckb1qyqxmxaxqmzyxssfrj07m4898g7qn5rn482sl8mwf4", maxCapacity: BigUInt(8000000000)).done { cells in
-            print(cells)
+        apiClient.getUnspentCells(publicKeyHash: "ckb1qyqxmxaxqmzyxssfrj07m4898g7qn5rn482sl8mwf4", maxCapacity: BigUInt(8000000000), limit: 1).done { cells in
             reqeustExpectation.fulfill()
         }.catch { error in
             print(error)
             reqeustExpectation.fulfill()
         }
-//        let cellsResponse = apiClient.getUnspentCells(address: "ckb1qyqxmxaxqmzyxssfrj07m4898g7qn5rn482sl8mwf4", maxCapacity: 8000000000)
-//        cellsResponse.sink { completion in
-//            if case let .failure(error) = completion{
-//                print(error)
-//            }
-//        } receiveValue: { cells in
-//            print(cells)
-//        }.store(in: &cancellables)
-//
-//        apiClient.getCells(cellsParams: CellsRequestParams(address: "ckb1qyqxmxaxqmzyxssfrj07m4898g7qn5rn482sl8mwf4"), last_cursor: nil).sink { completion in
-//            if case let .failure(error) = completion{
-//                print(error)
-//            }
-//        } receiveValue: { CellsResponse in
-//            print(CellsResponse)
-//        }.store(in: &cancellables)
-
         wait(for: [reqeustExpectation], timeout: 10)
     }
 }
