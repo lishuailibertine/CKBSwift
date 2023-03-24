@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import BigInt
 
 public typealias H256 = String // No strict typing for now.
 public typealias HexString = String // Present hex format data
@@ -19,6 +20,15 @@ public typealias Version = UInt32
 
 extension H256 {
     public static let zeroHash: H256 = "0x0000000000000000000000000000000000000000000000000000000000000000"
+}
+
+extension BigUInt{
+    public func capacity() -> Capacity?{
+        if let value = Capacity(self.description){
+            return value
+        }
+        return nil
+    }
 }
 
 /// Able to convert to API parameters just like toJSON.

@@ -7,7 +7,6 @@
 import Foundation
 import Secp256k1Swift
 import PromiseKit
-import BigInt
 
 public final class Payment {
     public static let minAmount = Capacity(61 * 100_000_000) // Assuming output data is `0x` and algorithm is the default Secp256k1
@@ -141,9 +140,9 @@ extension Payment {
                 let amountToCollect = self.amount + self.fee
                 var amountCollected = Capacity(0)
                 var inputs = [CellInput]()
-                let unspentCells = try self.apiClient.getUnspentCells(publicKeyHash: self.fromPublicKeyHash, maxCapacity: BigUInt(amountToCollect)).wait()
+                let unspentCells = try self.apiClient.getUnspentCells(publicKeyHash: self.fromPublicKeyHash, maxCapacity: amountToCollect).wait()
                 collecting: for cell in unspentCells {
-                    let input = CellInput(previousOutput: cell.out_point, since: 0)
+                    let input = CellInput(previousOutput: cell.out_point, since: Capacity(hexString: cell.tx_index) ?? 0)
                     inputs.append(input)
                     amountCollected += cell.output.capacity
 
@@ -158,7 +157,12 @@ extension Payment {
                     seal.fulfill(([], 0))
                     return
                 }
-                seal.fulfill((inputs, amountCollected - amountToCollect))
+                let diff = amountCollected - amountToCollect
+                if diff < Payment.minAmount && diff != 0{
+                    seal.reject(Error.insufficientBalance)
+                } else {
+                    seal.fulfill((inputs, diff))
+                }
             }.catch { error in
                 seal.reject(error)
             }

@@ -35,7 +35,7 @@ public final class CKBKeyPair {
     public let privateKey: Data
     public let publicKey: Data
     public let chainCode: Data
-
+    public static let DemoPrivateKey = Data(hex: "4b03d6fc340455b363f51020ad3ecca4f0850280cf436c70c727923f6db46c3e")
     private lazy var identifier: Data? = {
         if publicKey.isEmpty {
             return nil
@@ -77,7 +77,7 @@ public final class CKBKeyPair {
         self.chainCode = chainCode
 
         let pathComponents = path.split(separator: "/")
-        if (pathComponents.count > 0) {
+        if pathComponents.count > 0 {
             index = UInt32(String(pathComponents.last!.trimmingCharacters(in: ["'"])))!
             depth = pathComponents.count - 1
         }

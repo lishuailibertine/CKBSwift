@@ -42,19 +42,19 @@ public class AddressGenerator {
         return Data(data.bytes.suffix(20)).toHexString()
     }
 
-    public static func address(for publicKey: String, network: Network = .testnet) -> String {
+    public static func address(for publicKey: String, network: Network = .mainnet) -> String {
         return address(for: Data(hex: publicKey), network: network)
     }
 
-    public static func address(for publicKey: Data, network: Network = .testnet) -> String {
+    public static func address(for publicKey: Data, network: Network = .mainnet) -> String {
         return address(publicKeyHash: hash(for: publicKey), network: network)
     }
 
-    public static func address(publicKeyHash: String, network: Network = .testnet) -> String {
+    public static func address(publicKeyHash: String, network: Network = .mainnet) -> String {
         return address(publicKeyHash: Data(hex: publicKeyHash), network: network)
     }
 
-    public static func address(publicKeyHash: Data, network: Network = .testnet) -> String {
+    public static func address(publicKeyHash: Data, network: Network = .mainnet) -> String {
         let type = Data([AddressPlayloadFormatType.short.rawValue])
         let codeHashIndex = Data([AddressCodeHashIndex.secp256k1Blake160.rawValue])
         let payload = type + codeHashIndex + publicKeyHash

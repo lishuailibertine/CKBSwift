@@ -6,7 +6,6 @@
 
 import Foundation
 import PromiseKit
-import BigInt
 
 public extension APIClient {
     
@@ -49,19 +48,24 @@ public extension APIClient {
          load(APIRequest(method: "get_live_cell", params: [outPoint.param, withData]))
     }
 
-    func getUnspentCells(publicKeyHash: String, maxCapacity: BigUInt, limit: Capacity = 1) -> Promise<[CellObject]>{
+    func getUnspentCells(publicKeyHash: String, maxCapacity: Capacity, limit: Capacity = 1) -> Promise<[CellObject]>{
         return Promise { seal in
             DispatchQueue.global().async(.promise){
                 var last_cursor: String?
-                var capacity = BigUInt(0)
+                var capacity = Capacity(0)
                 var outpoints = [CellObject]()
-                while capacity < maxCapacity && last_cursor != "0x" {
-                    let response = try self.getCells(cellsParams: CellsRequestParams(publicKeyHash: publicKeyHash), limit: String(limit, radix: 16).addHexPrefix(), last_cursor: last_cursor).wait()
+                var diff = Capacity(1)
+                // 满足条件:1 未花费的数量小于 maxCapacity, 并且获取cell没有到最后一页, 2,减去maxCapacity剩余的部分要大于最小数量限制
+                while (capacity < maxCapacity && last_cursor != "0x") || (diff < Payment.minAmount && last_cursor != "0x") {
+                    let response = try self.getCells(cellsParams: CellsRequestParams(publicKeyHash: publicKeyHash), limit: limit.hexString, last_cursor: last_cursor).wait()
                     last_cursor = response.last_cursor
                     response.objects.forEach { object in
-                        capacity = capacity + BigUInt(object.output.capacity)
+                        capacity = capacity + object.output.capacity
                     }
                     outpoints.append(contentsOf: response.objects)
+                    if capacity > maxCapacity{
+                        diff = capacity - maxCapacity
+                    }
                 }
                 seal.fulfill(outpoints)
             }.catch { error in
@@ -71,7 +75,17 @@ public extension APIClient {
     }
     
     func getCells(cellsParams: CellsRequestParams, direction: String = "desc", limit: String = "0x64", last_cursor: String?) -> Promise<CellsResponse> {
-         load(APIRequest(method: "get_cells", params: [cellsParams.param, direction, limit, last_cursor]),"/indexer")
+         load(APIRequest(method: "get_cells", params: [cellsParams.param, direction, limit, last_cursor]), "/indexer")
+    }
+    
+    func getCellsCapacity(address: String) -> Promise<CellCapacity>{
+        guard let fromHash = AddressGenerator.publicKeyHash(for: address) else {
+            return Promise { seal in
+                seal.reject(APIError.invalidParameters)
+            }
+        }
+        let cellsParams = CellsRequestParams(publicKeyHash: fromHash)
+        return load(APIRequest(method: "get_cells_capacity", params: [cellsParams.param]), "/indexer")
     }
     
     func getTipBlockNumber() -> Promise<String> {
@@ -85,7 +99,11 @@ public extension APIClient {
     func getEpochByNumber(number: EpochNumber) -> Promise<Epoch> {
          load(APIRequest(method: "get_epoch_by_number", params: [number.hexString]))
     }
-
+    
+    func getFeeRateStatics() -> Promise<FeeRate>{
+        load(APIRequest(method: "get_fee_rate_statics", params: []))
+    }
+    
     func getCellbaseOutputCapacityDetails(blockHash: H256) -> Promise<BlockReward> {
          load(APIRequest(method: "get_cellbase_output_capacity_details", params: [blockHash]))
     }

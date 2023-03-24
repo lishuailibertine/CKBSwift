@@ -9,7 +9,7 @@ import PromiseKit
 
 public extension APIClient {
     func sendTransaction(transaction: Transaction) -> Promise<H256> {
-        load(APIRequest(method: "send_transaction", params: [transaction.param]))
+        return load(APIRequest(method: "send_transaction", params: [transaction.param]))
     }
 
     func txPoolInfo() -> Promise<TxPoolInfo> {
