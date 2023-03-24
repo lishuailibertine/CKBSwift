@@ -1,3 +1,3 @@
 # CKBSwift
 
-Reference: https://github.com/lishuailibertine/ckb-swift-kit
+Reference: https://github.com/ashchan/ckb-swift-kit
