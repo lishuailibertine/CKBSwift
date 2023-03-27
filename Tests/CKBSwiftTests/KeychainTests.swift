@@ -5,7 +5,15 @@ import XCTest
 class KeychainTests: XCTestCase {
     let shortSeed = Data(hex: "000102030405060708090a0b0c0d0e0f")
     let longSeed = Data(hex: "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542")
-
+    func test_keystore() throws{
+        let json: String = """
+        {"version":3,"crypto":{"ciphertext":"c6bf2bf0086b87ca1c8ba3ca16ac1ab200f33af0cf9068988196e06b9bea687d5a4993947bc61cef366e39414dd9fd65f1b0f08018ff599fa4cdc725cfd11d53","cipherparams":{"iv":"0f0150d7ff8f1dbec79e1226d5a0aba7"},"cipher":"aes-128-ctr","kdf":"scrypt","kdfparams":{"dklen":32,"salt":"770ae2b677b2196d1eb11532a2f0acd909205059ad9a889088ff88d69fc4c4e6","n":262144,"r":8,"p":1},"mac":"cb2131bef566fc5fa5af0a72ca6df39f5b2d5bca457133815d35719b78cedad9"},"id":"52a4f83a-2414-4db7-b017-1cfc1b9bd731"}
+        """
+        let privateData = try KeyStore(json)?.UNSAFE_getPrivateKeyData(password: "Lishuai945")
+        let keypair = try CKBKeyPair(privateKey: privateData!.subdata(in: 0..<32), chainCode: privateData!.subdata(in: 32..<64))
+        let childKeypair = try keypair.derivedKeychain(with: "m/44'/309'/0'/0/0")
+        print(AddressGenerator.address(for: childKeypair!.publicKey.toHexString()))
+    }
     func testMasterFromShortSeed() throws {
         let master = try CKBKeyPair(seed: shortSeed)
         XCTAssertEqual(master.privateKey.toHexString(), "e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35")
