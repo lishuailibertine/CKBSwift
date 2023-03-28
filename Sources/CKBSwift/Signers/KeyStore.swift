@@ -89,9 +89,6 @@ public final class KeyStore{
     }
     
     public init?(privateKey: Data, password: String = "", aesMode: String = "aes-128-ctr") throws {
-        guard privateKey.count == 32 else {
-            return nil
-        }
         try encryptDataToStorage(password, keyData: privateKey, aesMode: aesMode)
     }
     

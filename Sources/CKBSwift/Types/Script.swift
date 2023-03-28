@@ -9,6 +9,8 @@ import Foundation
 public enum ScriptHashType: String, Codable {
     case data
     case type
+    case data1
+    
 }
 
 public struct Script: Codable, Param {

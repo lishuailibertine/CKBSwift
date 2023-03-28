@@ -7,12 +7,18 @@ class KeychainTests: XCTestCase {
     let longSeed = Data(hex: "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542")
     func test_keystore() throws{
         let json: String = """
-        {"version":3,"crypto":{"ciphertext":"c6bf2bf0086b87ca1c8ba3ca16ac1ab200f33af0cf9068988196e06b9bea687d5a4993947bc61cef366e39414dd9fd65f1b0f08018ff599fa4cdc725cfd11d53","cipherparams":{"iv":"0f0150d7ff8f1dbec79e1226d5a0aba7"},"cipher":"aes-128-ctr","kdf":"scrypt","kdfparams":{"dklen":32,"salt":"770ae2b677b2196d1eb11532a2f0acd909205059ad9a889088ff88d69fc4c4e6","n":262144,"r":8,"p":1},"mac":"cb2131bef566fc5fa5af0a72ca6df39f5b2d5bca457133815d35719b78cedad9"},"id":"52a4f83a-2414-4db7-b017-1cfc1b9bd731"}
+        {"version":3,"crypto":{"ciphertext":"c5d862fd506a64439d3afed14f575152df2fb4180bed1b7f635f387cbde08922b1b78da14efb2f2ba4099a96c5b7345dca4ae4704b65eafd2ee569633d17c521","cipherparams":{"iv":"586a9c1af020c127337b75a728495e21"},"cipher":"aes-128-ctr","kdf":"scrypt","kdfparams":{"dklen":32,"salt":"5d987ceb8f5008d0b789da8ce2b27b4695ff53e7221af7a919ebc3a23cd4f350","n":262144,"r":8,"p":1},"mac":"3f853bf0049a2ca15a50b9eec98a4c426857d8e7c11200c1f220635224945c95"},"id":"627fbfad-8ee8-42e5-9cfd-6cee0e689575"}
         """
-        let privateData = try KeyStore(json)?.UNSAFE_getPrivateKeyData(password: "Lishuai945")
+        let privateData = try KeyStore(json)?.UNSAFE_getPrivateKeyData(password: "Ckb123456")
         let keypair = try CKBKeyPair(privateKey: privateData!.subdata(in: 0..<32), chainCode: privateData!.subdata(in: 32..<64))
         let childKeypair = try keypair.derivedKeychain(with: "m/44'/309'/0'/0/0")
-        print(AddressGenerator.address(for: childKeypair!.publicKey.toHexString()))
+        print(AddressGenerator.addressFull(for: childKeypair!.publicKey))
+        
+        let validate = AddressGenerator.validate(AddressGenerator.addressFull(for: childKeypair!.publicKey))
+        print(validate)
+        let keystore = try KeyStore(privateKey: privateData!, password: "Ckb123456")
+        let keystoreData = try keystore?.serialize()
+        print(String(data: keystoreData!, encoding: .utf8)!)
     }
     func testMasterFromShortSeed() throws {
         let master = try CKBKeyPair(seed: shortSeed)

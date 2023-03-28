@@ -25,7 +25,6 @@ let package = Package(
         .package(name: "Blake2", url: "https://github.com/lishuailibertine/Blake2.swift", from: "0.1.3"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.4.2"),
         .package(url: "https://github.com/attaswift/BigInt", from: "5.3.0"),
-        .package(name: "Bech32", url: "https://github.com/lishuailibertine/Bech32", from: "1.0.4"),
         .package(url: "https://github.com/mathwallet/RIPEMDSwift.git", from: "0.0.1"),
         .package(url: "https://github.com/mxcl/PromiseKit.git", .upToNextMajor(from: "6.18.0")),
         .package(url: "https://github.com/mathwallet/BIP39swift", from: "1.0.1")
@@ -35,7 +34,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "CKBSwift",
-            dependencies: ["Secp256k1Swift",.product(name: "BIP32Swift", package: "Secp256k1Swift"), "Blake2", "Bech32", "RIPEMDSwift", "CryptoSwift", "BigInt", "PromiseKit", "BIP39swift", "CryptoScrypt"]),
+            dependencies: ["Secp256k1Swift",.product(name: "BIP32Swift", package: "Secp256k1Swift"), "Blake2", "RIPEMDSwift", "CryptoSwift", "BigInt", "PromiseKit", "BIP39swift", "CryptoScrypt"]),
         .target(
             name: "CryptoScrypt",
             dependencies: []),
