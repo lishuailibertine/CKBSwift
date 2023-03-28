@@ -7,7 +7,7 @@
 
 import Foundation
 import CryptoSwift
-import CryptoScrypt
+import scrypt
 
 // Params
 extension KeyStore{
@@ -231,7 +231,6 @@ public final class KeyStore{
     }
     private func scrypt (password: String, salt: Data, length: Int, N: Int, R: Int, P: Int) -> Data? {
         guard let passwordData = password.data(using: .utf8) else {return nil}
-        var stop: String?
         var status: Int32 = 0
         var deriver = Data(repeating: 0x00, count: 32)
         let _ = deriver.withUnsafeMutableBytes { (deriverBuffPointer) in
@@ -241,7 +240,7 @@ public final class KeyStore{
                     let bytes_pass = unsafeBytes_pass.bindMemory(to: UInt8.self).baseAddress!
                     salt.withUnsafeBytes { (unsafeBytes_salt: UnsafeRawBufferPointer) in
                         let bytes_salt = unsafeBytes_salt.bindMemory(to: UInt8.self).baseAddress!
-                        status = crypto_scrypt(bytes_pass, unsafeBytes_pass.count, bytes_salt, unsafeBytes_salt.count, UInt64(N), UInt32(R), UInt32(P), serializedPubkeyPointer, deriverBuffPointer.count, &stop)
+                        status = crypto_scrypt(bytes_pass, unsafeBytes_pass.count, bytes_salt, unsafeBytes_salt.count, UInt64(N), UInt32(R), UInt32(P), serializedPubkeyPointer, deriverBuffPointer.count)
                     }
                 }
             }
