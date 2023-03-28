@@ -64,10 +64,13 @@ public class AddressGenerator {
     }
 
     public static func publicKeyHash(for address: String) -> String? {
-        guard let data = parse(address: address)?.data else {
-            return nil
+        if let data = parse(address: address, type: .BECH32_CONST)?.data{
+            return Data(data.bytes.suffix(20)).toHexString()
         }
-        return Data(data.bytes.suffix(20)).toHexString()
+        if let data = parse(address: address, type: .BECH32M_CONST)?.data{
+            return Data(data.bytes.suffix(20)).toHexString()
+        }
+        return nil
     }
 
     public static func address(for publicKey: String, network: Network = .mainnet) -> String {
