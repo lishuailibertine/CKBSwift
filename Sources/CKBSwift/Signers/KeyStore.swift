@@ -39,7 +39,7 @@ extension KeyStore{
         public var version: Int
         public var isHDWallet: Bool?
         public var type: String?
-        public init(crypto cr: CryptoParamsV3, id i: String, version ver: Int, type: String? = "private-key") {
+        public init(crypto cr: CryptoParamsV3, id i: String, version ver: Int, type: String? = nil) {
             self.crypto = cr
             self.id = i
             self.version = ver
