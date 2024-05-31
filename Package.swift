@@ -23,7 +23,7 @@ let package = Package(
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.4.2"),
         .package(url: "https://github.com/attaswift/BigInt", from: "5.3.0"),
         .package(url: "https://github.com/mathwallet/RIPEMDSwift.git", from: "0.0.1"),
-        .package(url: "https://github.com/mxcl/PromiseKit.git", .upToNextMajor(from: "6.18.0")),
+        .package(url: "https://github.com/mxcl/PromiseKit.git", .upToNextMajor(from: "8.1.1")),
         .package(url: "https://github.com/mathwallet/BIP39swift", from: "1.0.1"),
         .package(name: "scrypt", url: "https://github.com/v57/scrypt.c.git", from: "0.1.1")
     ],
