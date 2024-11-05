@@ -65,15 +65,6 @@
         }
       },
       {
-        "package": "scrypt",
-        "repositoryURL": "https://github.com/v57/scrypt.c.git",
-        "state": {
-          "branch": null,
-          "revision": "0a1ac944808cd667a0c2e2457a4729dcdd447085",
-          "version": "0.1.1"
-        }
-      },
-      {
         "package": "Secp256k1Swift",
         "repositoryURL": "https://github.com/mathwallet/Secp256k1Swift.git",
         "state": {

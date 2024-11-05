@@ -7,7 +7,6 @@
 
 import Foundation
 import CryptoSwift
-import scrypt
 
 // Params
 extension KeyStore{
@@ -92,7 +91,7 @@ public final class KeyStore{
         try encryptDataToStorage(password, keyData: privateKey, aesMode: aesMode)
     }
     
-    fileprivate func encryptDataToStorage(_ password: String, keyData: Data?, dkLen: Int = 32, N: Int = 262144, R: Int = 8, P: Int = 1, aesMode: String = "aes-128-ctr") throws {
+    fileprivate func encryptDataToStorage(_ password: String, keyData: Data?, dkLen: Int = 32, N: Int = 4096, R: Int = 6, P: Int = 1, aesMode: String = "aes-128-ctr") throws {
         if keyData == nil {
             throw KeystoreError.encryptionError("Encryption without key data")
         }
@@ -100,9 +99,16 @@ public final class KeyStore{
         guard let saltData = Data.randomBytes(length: saltLen) else {
             throw KeystoreError.noEntropyError
         }
-        guard let derivedKey = scrypt(password: password, salt: saltData, length: dkLen, N: N, R: R, P: P) else {
+        let scryptData: Data
+        if let passwordData = password.data(using: .utf8) {
+            scryptData = passwordData
+        } else {
+            scryptData = Data()
+        }
+        guard let derivedArray = try? Scrypt(password: scryptData.bytes, salt: saltData.bytes, dkLen: dkLen, N: N, r: R, p: P).calculate() else {
             throw KeystoreError.keyDerivationError
         }
+        let derivedKey = Data(derivedArray)
         let last16bytes = Data(derivedKey[(derivedKey.count - 16)...(derivedKey.count - 1)])
         let encryptionKey = Data(derivedKey[0...15])
         guard let IV = Data.randomBytes(length: 16) else {
@@ -153,7 +159,14 @@ public final class KeyStore{
             guard let R = keystoreParams.crypto.kdfparams.r else {
                 return nil
             }
-            passwordDerivedKey = scrypt(password: password, salt: saltData, length: derivedLen, N: N, R: R, P: P)
+            let scryptData: Data
+            if let passwordData = password.data(using: .utf8) {
+                scryptData = passwordData
+            } else {
+                scryptData = Data()
+            }
+            let derivedArray = try Scrypt(password: scryptData.bytes, salt: saltData.bytes, dkLen: derivedLen, N: N, r: R, p: P).calculate()
+            passwordDerivedKey = Data(derivedArray)
         case "pbkdf2":
             guard let algo = keystoreParams.crypto.kdfparams.prf else {
                 return nil
@@ -228,24 +241,5 @@ public final class KeyStore{
         }
         let data = try JSONEncoder().encode(params)
         return data
-    }
-    private func scrypt (password: String, salt: Data, length: Int, N: Int, R: Int, P: Int) -> Data? {
-        guard let passwordData = password.data(using: .utf8) else {return nil}
-        var status: Int32 = 0
-        var deriver = Data(repeating: 0x00, count: 32)
-        let _ = deriver.withUnsafeMutableBytes { (deriverBuffPointer) in
-            if let serializedPkRawPointer = deriverBuffPointer.baseAddress, deriverBuffPointer.count > 0 {
-                let serializedPubkeyPointer = serializedPkRawPointer.assumingMemoryBound(to: UInt8.self)
-                let _ =  passwordData.withUnsafeBytes { (unsafeBytes_pass: UnsafeRawBufferPointer) in
-                    let bytes_pass = unsafeBytes_pass.bindMemory(to: UInt8.self).baseAddress!
-                    salt.withUnsafeBytes { (unsafeBytes_salt: UnsafeRawBufferPointer) in
-                        let bytes_salt = unsafeBytes_salt.bindMemory(to: UInt8.self).baseAddress!
-                        status = crypto_scrypt(bytes_pass, unsafeBytes_pass.count, bytes_salt, unsafeBytes_salt.count, UInt64(N), UInt32(R), UInt32(P), serializedPubkeyPointer, deriverBuffPointer.count)
-                    }
-                }
-            }
-        }
-        if status != 0{return nil}
-        return deriver
     }
 }
