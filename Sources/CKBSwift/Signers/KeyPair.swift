@@ -157,7 +157,7 @@ public final class CKBKeyPair {
 
 private extension CKBKeyPair {
     static func hmac(key: Data, message: Data) -> Data {
-        if let hmac = try? HMAC(key: Array(key), variant: .sha512).authenticate(Array(message)) {
+        if let hmac = try? HMAC(key: Array(key), variant: .sha2(.sha512)).authenticate(Array(message)) {
             return Data(hmac)
         } else {
             return Data()
